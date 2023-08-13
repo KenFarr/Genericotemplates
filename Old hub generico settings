@@ -1,0 +1,33 @@
+Old Generico Hub Filter settings
+
+
+Search Icon
+
+SELECT
+CONCAT('<div class="media-filter" style="padding-top: 4px;"><ul><li class="media-icon',if(?=1,' active',''),'" title="Video" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt1,
+CONCAT('id=24&amp;courseid=67&amp;filter_var=1"><i class="fas fa-video-camera"> </i></a></li><li class="media-icon',if(?=2,' active',''),'" title="Audio" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt2,
+CONCAT('id=24&amp;courseid=67&amp;filter_var=2"><i class="fas fa-volume-up"> </i></a></li><li class="media-icon',if(?=3,' active',''),'" title="Bibliography" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt3,
+CONCAT('id=24&amp;courseid=67&amp;filter_var=3"><i class="fas fa-list"> </i></a></li><li class="media-icon',if(?=4,' active',''),'" title="Presentation" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt4,
+CONCAT('id=24&amp;courseid=67&amp;filter_var=4"><i class="fas fa-eye"> </i></a></li><li class="media-icon',if(?=5,' active',''),'" title="Website" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt5,
+CONCAT('id=24&amp;courseid=67&amp;filter_var=5"><i class="fas fa-link"> </i></a></li><li class="media-icon',if(?=6,' active',''),'" title="Online Book" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt6,
+CONCAT('id=24&amp;courseid=67&amp;filter_var=6"><i class="fas fa-book"> </i></a></li><li class="media-icon',if(?=7,' active',''),'" title="Image" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt7,
+CONCAT('id=24&amp;courseid=67&amp;filter_var=7"><i class="fas fa-image"> </i></a></li><li class="media-icon',if(?=8,' active',''),'" title="Online Course" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt8,
+CONCAT('id=24&amp;courseid=67&amp;filter_var=8"><i class="fas fa-graduation-cap"> </i></a></li><li class="media-icon',if(?=9,' active',''),'" title="Article" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt9,
+CONCAT('id=24&amp;courseid=67&amp;filter_var=9"><i class="fas fa-file-alt"> </i></a></li><li class="media-icon',if(?=10 OR ?="",' active',''),'" title="Show All Resource Types" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt10,
+'id=24&amp;courseid=67&amp;filter_var=10">All</a></li></ul></div>' AS txt11
+
+
+searchiconcourse
+
+SELECT
+CONCAT('<div class="media-filter" style="padding-top: 4px;"><ul><li class="media-icon',if(?=1,' active',''),'" title="Video" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt1,
+CONCAT('id=26&amp;courseid=',?,'&amp;filter_var=1" target="_blank"><i class="fas fa-video-camera"> </i></a></li><li class="media-icon',if(?=2,' active',''),'" title="Audio" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt2,
+CONCAT('id=26&amp;courseid=',?,'&amp;filter_var=2" target="_blank"><i class="fas fa-volume-up"> </i></a></li><li class="media-icon',if(?=3,' active',''),'" title="Bibliography" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt3,
+CONCAT('id=26&amp;courseid=',?,'&amp;filter_var=3" target="_blank"><i class="fas fa-list"> </i></a></li><li class="media-icon',if(?=4,' active',''),'" title="Presentation" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt4,
+CONCAT('id=26&amp;courseid=',?,'&amp;filter_var=4" target="_blank"><i class="fas fa-eye"> </i></a></li><li class="media-icon',if(?=5,' active',''),'" title="Website" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt5,
+CONCAT('id=26&amp;courseid=',?,'&amp;filter_var=5" target="_blank"><i class="fas fa-link"> </i></a></li><li class="media-icon',if(?=6,' active',''),'" title="Online Book" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt6,
+CONCAT('id=26&amp;courseid=',?,'&amp;filter_var=6" target="_blank"><i class="fas fa-book"> </i></a></li><li class="media-icon',if(?=7,' active',''),'" title="Image" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt7,
+CONCAT('id=26&amp;courseid=',?,'&amp;filter_var=7" target="_blank"><i class="fas fa-image"> </i></a></li><li class="media-icon',if(?=8,' active',''),'" title="Online Course" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt8,
+CONCAT('id=26&amp;courseid=',?,'&amp;filter_var=8" target="_blank"><i class="fas fa-graduation-cap"> </i></a></li><li class="media-icon',if(?=9,' active',''),'" title="Article" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt9,
+CONCAT('id=26&amp;courseid=',?,'&amp;filter_var=9" target="_blank"><i class="fas fa-file-alt"> </i></a></li><li class="media-icon',if(?=10 OR ?="",' active',''),'" title="Show All Resource Types" data-toggle="tooltip" data-placement="top"><a href="/blocks/configurable_reports/viewreport.php') AS txt10,
+CONCAT('id=26&amp;courseid=',?,'&amp;filter_var=10 target="_blank"">All</a></li></ul></div>') AS txt11
