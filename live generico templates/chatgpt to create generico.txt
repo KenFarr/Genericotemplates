@@ -1,6 +1,5 @@
 
 Best used with Moodle4.1 - SQL / development GPT
-````markdown
 # 🧰 Moodle 4.1 — Reusable Prompt for GPT: Generico SQL Template Design
 
 This prompt is designed for use with ChatGPT (custom GPTs or base model) to help develop and improve **Generico filter templates** in **Moodle 4.1**, especially those using SQL lookups in the `dataset` area.
@@ -37,29 +36,67 @@ It incorporates **best practices**, **limitations of the Generico filter**, and 
 
 - **Must return exactly one row** — otherwise all `@@DATASET:...@@` values fail silently.
 - If no matching record exists, you **must still return one fallback row** using:
-  - `UNION ALL` with a `SELECT 'No link found' AS linkout`
-  - A `FROM DUAL WHERE NOT EXISTS (...)` clause
-  - Subquery-wrapping with `LIMIT 1`
+  - `UNION ALL` with a fallback row
+  - Proper **wrapping of the full query in parentheses**
+  - No trailing `;` (semicolon) in the query string
+
+#### ✅ MariaDB-Compatible SQL Structure (Safe for Generico)
 
 ```sql
-SELECT * FROM (
-  SELECT ... WHERE match LIMIT 1
-  UNION ALL
-  SELECT 'fallback' ... WHERE NOT EXISTS (...)
-) AS final LIMIT 1
-````
+(SELECT linkout
+ FROM (
+   (
+     SELECT dc2.content AS linkout
+     FROM mdl_data_content dc1
+     JOIN mdl_data_content dc2 ON dc1.recordid = dc2.recordid
+     JOIN mdl_data_fields df1 ON dc1.fieldid = df1.id
+     JOIN mdl_data_fields df2 ON dc2.fieldid = df2.id
+     JOIN mdl_data_records dr ON dc1.recordid = dr.id
+     JOIN mdl_user u ON u.id = ?
+     WHERE dr.dataid = ?
+       AND df1.name = 'pathway'
+       AND df2.name = 'link'
+       AND dc1.content = u.department
+     LIMIT 1
+   )
+   UNION ALL
+   (
+     SELECT '# No link found' AS linkout
+     FROM DUAL
+     WHERE NOT EXISTS (
+       SELECT 1
+       FROM mdl_data_content dc
+       JOIN mdl_data_fields df ON dc.fieldid = df.id
+       JOIN mdl_user u ON u.id = ?
+       WHERE df.name = 'pathway'
+         AND dc.content = u.department
+     )
+   )
+ ) AS final
+ LIMIT 1)
+```
+
+### ⚠️ Important Notes
+
+- Always wrap the **entire `UNION` block** in an outer `SELECT` for MariaDB compatibility.
+- Never end the query with a **semicolon (;)** inside the `dataset` field — it will break parsing.
+- The alias (`linkout`) must be used consistently and **cannot be `content`, `row`, `count`, etc.** — those are reserved.
+
+---
 
 ### 2. Reserved Words
 
-Avoid aliases like `rows`, `row`, `count`, etc. Instead, use:
+Avoid aliases like `rows`, `row`, `count`, or `content`. Instead, use:
 
 ```sql
-AS rrows, linkout, outputval, datasetval
+AS linkout, datasetval, outputval, resulttext
 ```
+
+---
 
 ### 3. `datasetvars`
 
-Define all placeholders used in SQL `?` markers. Common values:
+Define all placeholders used in SQL `?` markers. These are substituted by Generico. Common ones:
 
 ```text
 @@USER:id@@
@@ -69,27 +106,35 @@ Define all placeholders used in SQL `?` markers. Common values:
 @@customparam1@@
 ```
 
-Use them in order:
+**Order matters** — match the `?` markers in your SQL.
+
+Example:
 
 ```json
-"datasetvars": "@@database@@,@@USER:id@@"
+"datasetvars": "@@USER:id@@,@@database@@,@@USER:id@@"
 ```
+
+---
 
 ### 4. Output (`body`)
 
-Use standard Moodle CSS classes for consistency:
+Use Moodle Bootstrap 4 styles for buttons or badges:
 
 ```html
 <a href="@@DATASET:linkout@@" class="btn btn-outline-secondary btn-sm text-nowrap" target="_blank" rel="noopener noreferrer">@@linktext@@</a>
 ```
 
+---
+
 ### 5. Fallbacks
 
-Always provide a working fallback in the SQL result:
+Use a dummy value like:
 
-* `'No link found'`
-* `'#'`
-* `'javascript:void(0)'`
+- `'# No link found'`
+- `'javascript:void(0)'`
+- `'#'`
+
+To ensure a row is always returned.
 
 ---
 
@@ -97,16 +142,16 @@ Always provide a working fallback in the SQL result:
 
 > Create a button that links the user to a department-specific URL stored in a database activity. The user’s department is matched to the `pathway` field. The `link` field is returned. If no match, a fallback URL is shown.
 
-### ✅ Template JSON
+### ✅ Template JSON (Safe for MariaDB)
 
 ```json
 {
   "key": "insertlink",
   "name": "Insert link based on profile field",
-  "instructions": "{GENERICO:type=insertlink,database=2,linktext=\"Visit Department Site\"}",
+  "instructions": "{GENERICO:type=insertlink,database=2,linktext=\"Go to your department site\"}",
   "body": "<div>\n  <a href=\"@@DATASET:linkout@@\" class=\"btn btn-outline-secondary btn-sm text-nowrap\" target=\"_blank\" rel=\"noopener noreferrer\">@@linktext@@</a>\n</div>",
-  "dataset": "SELECT * FROM (\n  SELECT dc2.content AS linkout\n  FROM mdl_data_content dc1\n  JOIN mdl_data_content dc2 ON dc1.recordid = dc2.recordid\n  JOIN mdl_data_fields df1 ON dc1.fieldid = df1.id\n  JOIN mdl_data_fields df2 ON dc2.fieldid = df2.id\n  JOIN mdl_data_records dr ON dc1.recordid = dr.id\n  WHERE dr.dataid = ?\n    AND df1.name = 'pathway'\n    AND df2.name = 'link'\n    AND dc1.content = (\n      SELECT department FROM mdl_user WHERE id = ?\n    )\n  LIMIT 1\n\n  UNION ALL\n\n  SELECT '# No link found' AS linkout\n  FROM DUAL\n  WHERE NOT EXISTS (\n    SELECT 1\n    FROM mdl_data_content dc\n    JOIN mdl_data_fields df ON dc.fieldid = df.id\n    WHERE df.name = 'pathway'\n      AND dc.content = (\n        SELECT department FROM mdl_user WHERE id = ?\n      )\n  )\n) AS final LIMIT 1",
-  "datasetvars": "@@database@@,@@USER:id@@,@@USER:id@@"
+  "dataset": "(SELECT linkout\n FROM (\n   (\n     SELECT dc2.content AS linkout\n     FROM mdl_data_content dc1\n     JOIN mdl_data_content dc2 ON dc1.recordid = dc2.recordid\n     JOIN mdl_data_fields df1 ON dc1.fieldid = df1.id\n     JOIN mdl_data_fields df2 ON dc2.fieldid = df2.id\n     JOIN mdl_data_records dr ON dc1.recordid = dr.id\n     JOIN mdl_user u ON u.id = ?\n     WHERE dr.dataid = ?\n       AND df1.name = 'pathway'\n       AND df2.name = 'link'\n       AND dc1.content = u.department\n     LIMIT 1\n   )\n   UNION ALL\n   (\n     SELECT '# No link found' AS linkout\n     FROM DUAL\n     WHERE NOT EXISTS (\n       SELECT 1\n       FROM mdl_data_content dc\n       JOIN mdl_data_fields df ON dc.fieldid = df.id\n       JOIN mdl_user u ON u.id = ?\n       WHERE df.name = 'pathway'\n         AND dc.content = u.department\n     )\n   )\n ) AS final\n LIMIT 1)",
+  "datasetvars": "@@USER:id@@,@@database@@,@@USER:id@@"
 }
 ```
 
@@ -114,29 +159,4 @@ Always provide a working fallback in the SQL result:
 
 ## ✅ Quick Checklist for Generico SQL Templates
 
-| Item                           | ✅ Required or Recommended    |
-| ------------------------------ | ---------------------------- |
-| Return exactly one row         | ✅ Always                     |
-| Avoid reserved alias names     | ✅ (`rrows`, `linkout`, etc.) |
-| Use standard Bootstrap classes | ✅ `btn`, `badge`, etc.       |
-| Use `datasetvars`              | ✅ Ordered parameters         |
-| Add fallback logic             | ✅ Always                     |
-| Use system variables           | ✅ `@@USER:id@@`, etc.        |
-| Handle missing data gracefully | ✅ Use fallback row           |
-| Open links safely              | ✅ `target="_blank"` + `rel`  |
-
----
-
-## 🧪 Sample Use
-
-```text
-{GENERICO:type=insertlink,database=2,linktext="Go to Department Page"}
-```
-
-This renders a Bootstrap-styled button linking the user to a URL matched from a database activity based on their profile field.
-
----
-
-```
-
-```
+| Item                           | ✅ Required or Recommended
